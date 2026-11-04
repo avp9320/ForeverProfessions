@@ -44,6 +44,8 @@ local function itemFromLoot(message)
   if itemName and not isSecret(itemName) then return itemName, itemID end
 end
 
+local selectAutoRoute
+
 local function recordGather(candidate, itemName, itemID)
   local db = FP.db
   if not db or not candidate or not candidate.map or not candidate.x or not candidate.y then return end
@@ -86,7 +88,7 @@ local function recordGather(candidate, itemName, itemID)
   FP:RefreshUI()
 end
 
-local function selectAutoRoute(kind)
+selectAutoRoute = function(kind)
   local selected = FP.db and FP.db.selectedResource
   if not selected or (selected ~= "Mining" and selected ~= "Herbalism" and selected ~= "Fishing") then
     FP.db.selectedResource = kind

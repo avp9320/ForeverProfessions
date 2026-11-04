@@ -1,4 +1,4 @@
-# ForeverProfessions — v0.2.2
+# ForeverProfessions — v0.2.3
 
 A minimal, account-aware professions and gathering companion for WoW: Forever.
 
@@ -11,7 +11,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - Manual location recording remains available as a fallback.
 - Resource-specific nearest-neighbor gathering loop with a modest preference for frequently visited locations; the route recomputes from your current position.
 - Compact, movable window hidden until requested.
-- Character-specific profession skill snapshots and a provisional pairing advisor. Recommendations are utility heuristics, not verified Forever meta rankings.
+- Character-specific profession skill snapshots and a provisional pairing advisor. Recommendations combine confirmed Forever profession availability/benefits with labeled Classic supply synergies, not unverified class meta.
 
 ## Commands
 
@@ -31,7 +31,7 @@ Automatic detection pairs a player gathering cast with a \`CHAT_MSG_LOOT\` event
 - Live-client verification is still needed for the exact spell names and event order emitted by each gathering profession. If a successful gather is missed, enable \`/fp detect debug\` and use \`/fp mark\` for that spot.
 - Fishing loot may not expose a cast/loot pair in every situation. The detector accepts a loot event for up to 45 seconds after a recognized fishing cast.
 - World map route overlay, profession leveling plans/material totals, and trainer reminders are not implemented yet.
-- Profession pairing scores are illustrative utility estimates, not live class/meta rankings.
+- Profession pairing scores are illustrative estimates, not live class/meta rankings. The separate ProfessionData.lua source defines the nine actual primary professions, three secondary professions, and provisional Classic material pairings. Confirmed Forever data takes priority; no fabricated node maps or recipe data are shipped.
 - Routes are a greedy nearest-neighbor ordering, not terrain-aware pathfinding or spawn timers.
 
 ## Install
