@@ -1,6 +1,6 @@
 local _, FP = ...
--- Detect only a player gathering cast followed by an item-loot event.
--- The resulting coordinates are observed gather locations, not guaranteed spawns.
+-- Detect a player gathering cast paired with its resulting loot item.
+-- Saved coordinates are observed locations, not guaranteed spawns.
 local detector = CreateFrame("Frame")
 local pending
 
@@ -28,6 +28,7 @@ local function gatherKind(spellID)
   if lower:find("fish", 1, true) then return "Fishing", name end
   if lower:find("mining", 1, true) or lower == "mine" then return "Mining", name end
   if lower:find("herb", 1, true) or lower:find("gather", 1, true) then return "Herbalism", name end
+  return nil, name
 end
 
 local function itemFromLoot(message)
@@ -52,9 +53,8 @@ local function recordGather(candidate, itemName, itemID)
   local nodes = zone[candidate.kind] or {}
   zone[candidate.kind] = nodes
 
-  local point = {x = candidate.x, y = candidate.y}
   for _, node in ipairs(nodes) do
-    local dx, dy = node.x - point.x, node.y - point.y
+    local dx, dy = node.x - candidate.x, node.y - candidate.y
     if dx * dx + dy * dy < 0.000025 then
       node.visits = (node.visits or 1) + 1
       node.lastSeen = time()
@@ -65,7 +65,7 @@ local function recordGather(candidate, itemName, itemID)
       loot.name, loot.itemID = itemName, itemID
       loot.count = (loot.count or 0) + 1
       node.loot[lootKey] = loot
-      if FP.db.settings.detectionDebug then
+      if db.settings.detectionDebug then
         FP:Say("Gather detected: " .. candidate.kind .. " → " .. itemName .. " (known spot, " .. node.visits .. " visits).")
       end
       if not db.selectedResource then db.selectedResource = candidate.kind end
@@ -76,11 +76,11 @@ local function recordGather(candidate, itemName, itemID)
 
   local lootKey = itemID and tostring(itemID) or itemName
   nodes[#nodes + 1] = {
-    x = point.x, y = point.y, visits = 1, lastSeen = time(), knownSpawn = true,
+    x = candidate.x, y = candidate.y, visits = 1, lastSeen = time(), knownSpawn = true,
     loot = {[lootKey] = {name = itemName, itemID = itemID, count = 1}},
   }
-  if FP.db.settings.detectionDebug then
-    FP:Say(string.format("Gather detected: %s → %s at %.1f, %.1f.", candidate.kind, itemName, point.x * 100, point.y * 100))
+  if db.settings.detectionDebug then
+    FP:Say(string.format("Gather detected: %s → %s at %.1f, %.1f.", candidate.kind, itemName, candidate.x * 100, candidate.y * 100))
   end
   if not db.selectedResource then db.selectedResource = candidate.kind end
   FP:RefreshUI()
@@ -88,6 +88,10 @@ end
 
 local function clearPending()
   pending = nil
+end
+
+local function timeoutFor(kind)
+  return kind == "Fishing" and 45 or 12
 end
 
 local function onEvent(_, event, ...)
@@ -123,11 +127,13 @@ local function onEvent(_, event, ...)
     if unit ~= "player" then return end
     local kind, spellName = gatherKind(spellID)
     if not kind then
-      if FP.db and FP.db.settings.detectionDebug and spellName then FP:Say("Cast seen, not a gathering cast: " .. spellName) end
+      if FP.db and FP.db.settings.detectionDebug and spellName then FP:Say("Cast seen, not classified: " .. spellName) end
       return
     end
     local mapID, x, y = position()
-    if mapID then pending = {kind = kind, spell = spellName, started = GetTime(), map = mapID, x = x, y = y} end
+    if mapID then
+      pending = {kind = kind, spell = spellName, started = GetTime(), map = mapID, x = x, y = y, timeout = timeoutFor(kind)}
+    end
     return
   end
 
@@ -135,25 +141,37 @@ local function onEvent(_, event, ...)
     local unit, _, spellID = ...
     if unit ~= "player" then return end
     local kind, spellName = gatherKind(spellID)
-    if not kind then return end
+    if not kind then
+      if FP.db and FP.db.settings.detectionDebug and spellName then FP:Say("Successful cast not classified: " .. spellName) end
+      return
+    end
     local now = GetTime()
-    if not pending or pending.kind ~= kind or now - pending.started > 12 then
+    if not pending or pending.kind ~= kind or now - pending.started > pending.timeout then
       local mapID, x, y = position()
-      if mapID then pending = {kind = kind, spell = spellName, started = now, map = mapID, x = x, y = y} end
+      if mapID then pending = {kind = kind, spell = spellName, started = now, map = mapID, x = x, y = y, timeout = timeoutFor(kind)} end
     else
       pending.succeeded = now
+    end
+    if pending and pending.kind == kind and pending.loot then
+      local candidate, itemName, itemID = pending, pending.loot.name, pending.loot.itemID
+      clearPending()
+      recordGather(candidate, itemName, itemID)
     end
     return
   end
 
   if event == "CHAT_MSG_LOOT" then
-    if not pending or GetTime() - pending.started > 12 then clearPending(); return end
+    if not pending or GetTime() - pending.started > pending.timeout then clearPending(); return end
     local message = ...
     local itemName, itemID = itemFromLoot(message)
     if itemName then
-      local candidate = pending
-      clearPending()
-      recordGather(candidate, itemName, itemID)
+      if pending.succeeded then
+        local candidate = pending
+        clearPending()
+        recordGather(candidate, itemName, itemID)
+      else
+        pending.loot = {name = itemName, itemID = itemID}
+      end
     end
   end
 end
