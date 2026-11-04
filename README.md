@@ -1,4 +1,4 @@
-# ForeverProfessions — v0.2.0
+# ForeverProfessions — v0.2.1
 
 A minimal, account-aware professions and gathering companion for WoW: Forever.
 
@@ -22,13 +22,13 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - \`/fp detect debug\` — toggle gather-event diagnostics in chat
 - \`/fp help\` — command summary
 
-Automatic detection pairs a player gathering cast with a nearby \`CHAT_MSG_LOOT\` event. It uses the player position sampled at the cast and the item link from the loot event. When enabled, debug output helps identify casts the current client reports. The reliable fallback is \`/fp mark\`.
+Automatic detection pairs a player gathering cast with a \`CHAT_MSG_LOOT\` event and uses the player position sampled at the cast. Mining and herbalism loot is paired for up to 12 seconds; fishing loot is paired for up to 45 seconds. A node is recorded only after a successful cast and an item link. When enabled, debug output shows casts that were not classified. The reliable fallback is \`/fp mark\`.
 
 ## Current limits
 
 - Forever's modern API uses secret values in some contexts. The detector skips secret spell names, IDs, coordinates, and loot messages rather than trying to inspect them.
 - Live-client verification is still needed for the exact spell names and event order emitted by each gathering profession. If a successful gather is missed, enable \`/fp detect debug\` and use \`/fp mark\` for that spot.
-- Fishing and some gather events may not expose a cast/loot pair in every situation. The detector accepts a loot event for up to 12 seconds after a recognized gathering cast.
+- Fishing loot may not expose a cast/loot pair in every situation. The detector accepts a loot event for up to 45 seconds after a recognized fishing cast.
 - World map route overlay, profession leveling plans/material totals, and trainer reminders are not implemented yet.
 - Profession pairing scores are illustrative utility estimates, not live class/meta rankings.
 - Routes are a greedy nearest-neighbor ordering, not terrain-aware pathfinding or spawn timers.
