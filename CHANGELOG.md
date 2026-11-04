@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1
+
+- Require a successful player gathering cast before recording a loot-correlated location.
+- Handle loot arriving before the cast-success event.
+- Allow up to 45 seconds to pair fishing casts with catches.
+- Show unclassified player cast names with \`/fp detect debug\`.
+
 ## 0.2.0
 
 - Added automatic gather recording by pairing player gathering casts with loot events.
