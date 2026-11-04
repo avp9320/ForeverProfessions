@@ -1,4 +1,4 @@
-# ForeverProfessions — v0.2.1
+# ForeverProfessions — v0.2.2
 
 A minimal, account-aware professions and gathering companion for WoW: Forever.
 
@@ -7,6 +7,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - Account-wide SavedVariables database shared by characters on the same installation/account.
 - Automatic node-location recording when a player mining, herbalism, or fishing cast is followed by a loot item.
 - Nodes are stored as **observed locations**, not guaranteed spawns. Nearby gathers update the visit count and item-yield observations.
+- The first detected gather selects its profession route automatically, including when an older manual resource selection was saved.
 - Manual location recording remains available as a fallback.
 - Resource-specific nearest-neighbor gathering loop with a modest preference for frequently visited locations; the route recomputes from your current position.
 - Compact, movable window hidden until requested.
