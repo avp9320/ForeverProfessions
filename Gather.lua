@@ -68,7 +68,7 @@ local function recordGather(candidate, itemName, itemID)
       if db.settings.detectionDebug then
         FP:Say("Gather detected: " .. candidate.kind .. " → " .. itemName .. " (known spot, " .. node.visits .. " visits).")
       end
-      if not db.selectedResource then db.selectedResource = candidate.kind end
+      selectAutoRoute(candidate.kind)
       FP:RefreshUI()
       return
     end
@@ -84,6 +84,13 @@ local function recordGather(candidate, itemName, itemID)
   end
   if not db.selectedResource then db.selectedResource = candidate.kind end
   FP:RefreshUI()
+end
+
+local function selectAutoRoute(kind)
+  local selected = FP.db and FP.db.selectedResource
+  if not selected or (selected ~= "Mining" and selected ~= "Herbalism" and selected ~= "Fishing") then
+    FP.db.selectedResource = kind
+  end
 end
 
 local function clearPending()
