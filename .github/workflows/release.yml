@@ -33,8 +33,8 @@ jobs:
       - name: Check whether version already published
         id: existing
         env:
-          GH_TOKEN: \${{ github.token }}
-          TAG: \${{ steps.version.outputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
         shell: bash
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
@@ -52,16 +52,16 @@ jobs:
           mkdir -p dist/ForeverProfessions
           cp *.toc *.lua README.md CHANGELOG.md dist/ForeverProfessions/
           cd dist
-          zip -r "../\${{ steps.version.outputs.asset }}" ForeverProfessions
+          zip -r "../${{ steps.version.outputs.asset }}" ForeverProfessions
 
       - name: Publish GitHub release
         if: steps.existing.outputs.published != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: \${{ steps.version.outputs.tag }}
-          target_commitish: \${{ github.sha }}
-          name: ForeverProfessions \${{ steps.version.outputs.version }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ForeverProfessions ${{ steps.version.outputs.version }}
           body: |
             Automatic gather recording now pairs player mining, herbalism, and fishing casts with loot events. Gathered locations are stored as observed nodes, with manual marking retained as a fallback. Live-client verification is still needed for exact event behavior.
-          files: \${{ steps.version.outputs.asset }}
+          files: ${{ steps.version.outputs.asset }}
           fail_on_unmatched_files: true
