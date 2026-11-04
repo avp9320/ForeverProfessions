@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+
+- Automatically switch to the detected profession route on first gather, including when the account has a legacy manual selection saved.
+
 ## 0.2.1
 
 - Require a successful player gathering cast before recording a loot-correlated location.
