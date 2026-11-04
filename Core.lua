@@ -9,7 +9,10 @@ local function mapPosition()
   local mapID = C_Map.GetBestMapForUnit('player')
   if not mapID then return end
   local pos = C_Map.GetPlayerMapPosition(mapID, 'player')
-  if pos then return mapID, pos.x, pos.y end
+  if pos then
+    local x, y = pos:GetXY()
+    return mapID, x, y
+  end
 end
 local function distance(a,b)
   local dx,dy=a.x-b.x,a.y-b.y
@@ -47,7 +50,7 @@ function FP:Record(resource)
       self:Say('Updated known '..resource..' location.'); self:RefreshUI(); return
     end
   end
-  nodes[#nodes+1]={x=x,y=y,visits=1,lastSeen=time()}
+  nodes[#nodes+1]={x=x,y=y,visits=1,lastSeen=time(),knownSpawn=true}
   self:Say('Saved '..resource..' at '..math.floor(x*100)..', '..math.floor(y*100)..'.')
   self:RefreshUI()
 end
@@ -62,7 +65,6 @@ function FP:GetRoute()
   while #remaining>0 do
     local best,bestScore=1,math.huge
     for i,n in ipairs(remaining) do
-      -- Shorter distance wins, with a small preference for repeatedly productive spots.
       local score=distance(current,n)/(1+math.min(n.visits or 1,8)*0.08)
       if score<bestScore then best,bestScore=i,score end
     end
@@ -72,9 +74,9 @@ function FP:GetRoute()
   return route,map
 end
 function FP:SelectResource(name)
-  if not name or name=='' then self:Say('Usage: /fp resource Copper Vein'); return end
+  if not name or name=='' then self:Say('Usage: /fp resource Mining'); return end
   self.db.selectedResource=name
-  self:Say('Tracking '..name..'. Routes use your recorded locations in the current zone.')
+  self:Say('Tracking '..name..'. Routes use observed locations in the current zone.')
   self:RefreshUI()
 end
 function FP:RefreshUI() end
@@ -106,6 +108,7 @@ SlashCmdList.FOREVERPROFESSIONS=function(input)
   elseif cmd=='mark' then FP:Record(rest~='' and rest or nil)
   elseif cmd=='route' then FP:PrintRoute()
   elseif cmd=='advisor' then FP:ShowAdvisor()
-  elseif cmd=='help' then FP:Say('/fp show | resource <name> | mark | route | advisor')
+  elseif cmd=='detect' and (rest or ''):lower()=='debug' then FP:ToggleDetectionDebug()
+  elseif cmd=='help' then FP:Say('/fp show | resource <name> | mark | route | advisor | detect debug')
   else FP:Say('Unknown command. Try /fp help') end
 end
