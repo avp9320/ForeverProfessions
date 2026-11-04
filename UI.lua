@@ -29,20 +29,21 @@ advisor:SetSize(125,24);advisor:SetPoint('BOTTOMRIGHT',-15,15);advisor:SetText('
 advisor:SetScript('OnClick',function() FP:ShowAdvisor() end)
 function FP:RefreshUI()
   if not self.db then return end
-  local resource=self.db.selectedResource or '(none selected)'
-  sub:SetText('Resource: '..resource)
+  local resource=self.db.selectedResource or '(auto-selects after first gather)'
+  sub:SetText('Route: '..resource)
   local route=self:GetRoute()
-  local lines={'Known gathering loop in this zone:'}
+  local lines={'Auto-records successful mining, herbalism, and fishing gathers.'}
   if #route==0 then
-    lines[#lines+1]='No saved nodes yet.'
-    lines[#lines+1]='Use /fp resource Copper Vein'
-    lines[#lines+1]='Then /fp mark after gathering.'
+    lines[#lines+1]='No observed locations in this zone yet.'
+    lines[#lines+1]='Gather with a node or use /fp mark.'
+    lines[#lines+1]='Use /fp detect debug if detection misses.'
   else
-    for i=1,math.min(7,#route) do
+    lines[#lines+1]='Known locations in this zone:'
+    for i=1,math.min(6,#route) do
       local n=route[i]
       lines[#lines+1]=string.format('%d. %.1f, %.1f  (%d visits)',i,n.x*100,n.y*100,n.visits or 1)
     end
-    if #route>7 then lines[#lines+1]='...and '..(#route-7)..' more locations' end
+    if #route>6 then lines[#lines+1]='...and '..(#route-6)..' more locations' end
   end
   content:SetText(table.concat(lines,'\n'))
 end
@@ -51,7 +52,7 @@ function FP:ToggleUI()
 end
 function FP:PrintRoute()
   local route=self:GetRoute()
-  if #route==0 then self:Say('No saved nodes in this zone for selected resource.');return end
+  if #route==0 then self:Say('No observed locations in this zone for selected route.');return end
   self:Say('Suggested loop ('..#route..' stops):')
   for i=1,math.min(#route,10) do
     self:Say(string.format('%d: %.1f, %.1f',i,route[i].x*100,route[i].y*100))
