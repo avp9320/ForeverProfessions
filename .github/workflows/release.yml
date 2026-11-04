@@ -1,0 +1,72 @@
+name: Package ForeverProfessions release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read addon version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(awk -F': ' '/^## Version:/ {print $2; exit}' ForeverProfessions.toc | tr -d '\r')
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo 'Invalid ## Version in ForeverProfessions.toc' >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "asset=ForeverProfessions-$VERSION-forever.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether version already published
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo 'published=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'published=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build WowUp-compatible zip
+        if: steps.existing.outputs.published != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir -p dist/ForeverProfessions
+          cp *.toc *.lua README.md CHANGELOG.md dist/ForeverProfessions/
+          cd dist
+          zip -r "../${{ steps.version.outputs.asset }}" ForeverProfessions
+
+      - name: Publish GitHub release
+        if: steps.existing.outputs.published != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ForeverProfessions ${{ steps.version.outputs.version }}
+          body: |
+            Initial WoW: Forever test release of ForeverProfessions.
+            Current node recording is manual. Automated gathering, map routes, and
+            verified class/meta profession recommendations are not yet implemented.
+
+            Install with WoWUp from:
+            https://github.com/avp9320/ForeverProfessions
+          files: ${{ steps.version.outputs.asset }}
+          fail_on_unmatched_files: true
