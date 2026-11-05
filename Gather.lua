@@ -26,6 +26,7 @@ local function gatherKind(spellID)
   if not name or isSecret(name) then return end
   local lower = name:lower()
   if lower:find("fish", 1, true) then return "Fishing", name end
+  if lower:find("skin", 1, true) then return "Skinning", name end
   if lower:find("mining", 1, true) or lower == "mine" then return "Mining", name end
   if lower:find("herb", 1, true) or lower:find("gather", 1, true) then return "Herbalism", name end
   return nil, name
