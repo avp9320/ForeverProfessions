@@ -19,7 +19,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - Numbered gathering stops and connecting route lines on the matching World Map zone, shared across characters on the same installation; uses a Lua 5.1-compatible angle calculation and ignores map events unsupported by the client.
 - Compact, movable window hidden until requested.
 - Character-specific profession skill snapshots (including noncontiguous profession slots) and a provisional pairing advisor. Recommendations combine confirmed Forever profession availability/benefits with labeled Classic supply synergies, not unverified class meta.
-- The character-specific leveling coach uses the **Leveling** button or `/fp level [profession]` to show the next step, estimated craft count, skill bracket, and materials.
+- The character-specific leveling coach uses the **Leveling** button or `/fp level [profession]` to show a clearly separated route target, available skill-up recipe, and craft materials. The route recipe is preferred when it can currently raise skill.
 - Rank trainer reminders when the saved profession skill reaches or nears its current rank cap.
 
 ## Commands
