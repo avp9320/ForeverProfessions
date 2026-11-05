@@ -8,7 +8,7 @@ This is a release gate, not a claim of implementation. README claims and static 
 - [ ] Improve profession advisor with verified Forever-specific class and account data, not trope-based guesses
 - [ ] Verify release packaging and SavedVariables migration
 
-## Phase 1 feature implementation\n\n- [x] Adaptive observed-node route ordering now combines yield-weighted greedy selection with a bounded 2-opt circuit improvement, including the loop's return leg (Core.lua; commit 09bd01f). This is a geometric route only, not terrain-aware navigation.\n- [ ] Confirm in-game that map lines and stop numbering reflect the improved order; measure performance in dense zones.\n\n## Evidence
+## Phase 1 feature implementation\n\n- [x] Adaptive observed-node route ordering now combines yield-weighted greedy selection with a bounded 2-opt circuit improvement, including the loop's return leg (Core.lua; commit 09bd01f). This is a geometric route only, not terrain-aware navigation.\n- [ ] Confirm in-game that map lines and stop numbering reflect the improved order; measure performance in dense zones.\n\n- [x] Phase 1: Advisor now filters candidate pairings against the current character's existing primary professions and open slots, avoiding impossible recommendations that require unlearning (Advisor.lua; commit 743a93e). Static inspection only; live profession snapshots and UI behavior remain unverified.\n\n## Evidence
 
 - Code review: 2026-11-05 — inspected Gather.lua and corrected two event-order defects (commit 2679a41): SUCCEEDED without START now marks a gather successful; unrelated failed casts no longer clear a completed gather waiting for loot. Static inspection only; exact live event ordering and loot matching remain unverified.
 - Automated/static tests: pending
