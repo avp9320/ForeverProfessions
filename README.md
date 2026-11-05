@@ -1,6 +1,4 @@
-# ForeverProfessions — v0.3.11
-
-A minimal, account-aware professions and gathering companion for WoW: Forever.
+# ForeverProfessions — v0.3.12nimal, account-aware professions and gathering companion for WoW: Forever.
 
 ## Working features
 
@@ -29,6 +27,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - `/fp track <item ID or name> <quantity>` — track material goal
 - `/fp untrack <item ID or name>` — stop tracking a material
 - `/fp advisor balanced|gold|utility|account` — choose recommendation priority
+- `/fp map [on|off]` — toggle or set World Map route visibility
 
 - \`/fp\` — open or close the window
 - \`/fp resource Mining\` — choose the route to view (Mining, Herbalism, or Fishing)
