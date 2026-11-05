@@ -159,7 +159,7 @@ function FP:RefreshRouteMap()
     end
   end
   hideUnused(pins, #route + 1)
-  hideUnused(lines, math.max(0, #route))
+  hideUnused(lines, math.max(1, #route))
   currentMap = map
 end
 
