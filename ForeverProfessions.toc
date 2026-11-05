@@ -2,7 +2,7 @@
 ## Title: ForeverProfessions
 ## Notes: Minimal account-aware profession and gathering companion
 ## Author: Forever Suite
-## Version: 0.3.6
+## Version: 0.3.7
 ## SavedVariables: ForeverProfessionsDB
 Core.lua
 Gather.lua
