@@ -86,7 +86,7 @@ local function recordGather(candidate, itemName, itemID)
   if db.settings.detectionDebug then
     FP:Say(string.format("Gather detected: %s → %s at %.1f, %.1f.", candidate.kind, itemName, candidate.x * 100, candidate.y * 100))
   end
-  if not db.selectedResource then db.selectedResource = candidate.kind end
+  selectAutoRoute(candidate.kind)
   FP:RefreshUI()
   if FP.RefreshRouteMap then FP:RefreshRouteMap() end
 end
