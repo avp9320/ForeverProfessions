@@ -5,6 +5,12 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 ## Working features
 
 - Account-wide SavedVariables database shared by characters on the same installation/account.
+- Skill-aware 1–300 leveling recommendations for the nine primary and three secondary professions.
+- Scans known recipes, difficulty colors, and exact reagents from the profession book (legacy or modern APIs); stores them per character.
+- Automatically recommends a craft based on skill, estimates crafts to the next bracket, and suggests learned orange/yellow alternatives.
+- Tracks needed recipe materials against visible inventory and personal material goals using /fp mats, /fp track and /fp untrack.
+- Account-aware profession advisor supports balanced, gold, utility and account-coverage priorities.
+- Skinning gather detection in addition to mining, herbalism and fishing.
 - Automatic node-location recording when a player mining, herbalism, or fishing cast is followed by a loot item.
 - Nodes are stored as **observed locations**, not guaranteed spawns. Nearby gathers update the visit count and item-yield observations.
 - The first detected gather selects its profession route automatically, including when an older manual resource selection was saved.
@@ -16,6 +22,12 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - Rank trainer reminders when the saved profession skill reaches or nears its current rank cap.
 
 ## Commands
+
+- `/fp level [profession]` — next recommended skill-up recipe or gathering target
+- `/fp mats [profession]` — material requirements and tracked goals
+- `/fp track <item ID or name> <quantity>` — track material goal
+- `/fp untrack <item ID or name>` — stop tracking a material
+- `/fp advisor balanced|gold|utility|account` — choose recommendation priority
 
 - \`/fp\` — open or close the window
 - \`/fp resource Mining\` — choose the route to view (Mining, Herbalism, or Fishing)
