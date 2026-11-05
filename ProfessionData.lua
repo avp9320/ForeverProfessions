@@ -27,7 +27,7 @@ FP.ProfessionData = {
         Skinning = "gathering",
         Tailoring = "crafting",
     },
-    secondary = { Cooking = true, FirstAid = true, Fishing = true },
+    secondary = { Cooking = true, FirstAid = true, ["First Aid"] = true, Fishing = true },
     -- These are advisory candidate pairings, not claimed class meta rankings.
     -- Classic supply relationships remain relevant, while Forever gives
     -- crafting professions additional Camping and Legacy value.
