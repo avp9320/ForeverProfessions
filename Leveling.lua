@@ -4,7 +4,7 @@ local _, FP = ...
 local function recipeKey(value) return tostring(value or ''):lower():gsub('[^%a%d]','') end
 
 local window = CreateFrame('Frame', 'ForeverProfessionsLevelingWindow', UIParent, 'BackdropTemplate')
-window:SetSize(360, 330)
+window:SetSize(410, 360)
 window:SetPoint('CENTER')
 window:SetFrameStrata('DIALOG')
 window:SetMovable(true)
@@ -12,7 +12,9 @@ window:EnableMouse(true)
 window:RegisterForDrag('LeftButton')
 window:SetScript('OnDragStart', window.StartMoving)
 window:SetScript('OnDragStop', window.StopMovingOrSizing)
-window:SetBackdrop({bgFile='Interface\\DialogFrame\\UI-DialogBox-Background',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=14,insets={left=3,right=3,top=3,bottom=3}})
+window:SetBackdrop({bgFile='Interface\\Buttons\\WHITE8X8',edgeFile='Interface\\Tooltips\\UI-Tooltip-Border',edgeSize=14,insets={left=3,right=3,top=3,bottom=3}})
+window:SetBackdropColor(0.015, 0.012, 0.01, 0.98)
+window:SetBackdropBorderColor(0.72, 0.52, 0.2, 1)
 window:Hide()
 
 local title = window:CreateFontString(nil, 'OVERLAY', 'GameFontNormalLarge')
@@ -23,9 +25,9 @@ local close = CreateFrame('Button', nil, window, 'UIPanelCloseButton')
 close:SetPoint('TOPRIGHT', 0, 0)
 
 local content = window:CreateFontString(nil, 'OVERLAY', 'GameFontHighlight')
-content:SetPoint('TOPLEFT', title, 'BOTTOMLEFT', 0, -18)
-content:SetPoint('TOPRIGHT', window, 'TOPRIGHT', -18, -48)
-content:SetHeight(245)
+content:SetPoint('TOPLEFT', window, 'TOPLEFT', 20, -58)
+content:SetPoint('TOPRIGHT', window, 'TOPRIGHT', -20, -58)
+content:SetHeight(265)
 content:SetJustifyH('LEFT')
 content:SetJustifyV('TOP')
 
@@ -246,6 +248,29 @@ function FP:GetLiveRecipeState()
   return state
 end
 
+local function findRouteStep(s)
+  if not s or not FP.LevelingData then return nil end
+  for _, step in ipairs(FP.LevelingData[s.profession] or {}) do
+    if (tonumber(step[2]) or 0) > (tonumber(s.rank) or 0) then return step end
+  end
+end
+
+local function routeStepText(s)
+  if not s then return 'Open a profession or use /fp level <profession>.' end
+  if s.done then return 'Profession is maxed at 300.' end
+  if s.trainer then return 'Train the next profession rank before continuing.' end
+  if s.missing then return 'No leveling route is available for this profession.' end
+  if s.gather then return 'Gather ' .. tostring(s.name) .. ' to raise this profession.' end
+  local step = findRouteStep(s)
+  if not step then return 'No remaining leveling step is listed.' end
+  local from = math.max(tonumber(s.rank) or step[1], tonumber(step[1]) or 0)
+  local to = tonumber(step[2]) or from
+  local estimate = tonumber(step[4]) or math.max(1, to - from)
+  estimate = math.max(1, math.ceil(estimate * math.max(0, to - from) / math.max(1, to - (tonumber(step[1]) or from))))
+  local text = string.format('%d–%d: %s  (~%d crafts; estimate)', from, to, step[3], estimate)
+  return text
+end
+
 function FP:RefreshLeveling(requested)
   if not self.db then return end
   local state = self:GetLiveRecipeState()
@@ -254,47 +279,75 @@ function FP:RefreshLeveling(requested)
   end
   if not state or state.loading then
     local suggestion = self.GetLevelingSuggestion and self:GetLevelingSuggestion(requested)
-    local guide = suggestion and self:LevelingLabel(suggestion) .. '\n\n' or ''
-    content:SetText(guide .. 'Open a profession window to scan learned recipes and exact reagents.')
+    local lines = {
+      '|cffffd45eLEVELING PLAN|r',
+      self:LevelingLabel(suggestion),
+      '',
+      'Open a profession window to scan learned recipes and exact reagents.',
+    }
+    content:SetText(table.concat(lines, '\n'))
     return
   end
 
-  local lines = {state.name .. '  |  Skill ' .. tostring(state.skill or '?') .. ' / ' .. tostring(state.maxSkill or '?')}
   local planned = self.GetLevelingSuggestion and self:GetLevelingSuggestion(requested or state.name)
-  if planned then
-    lines[#lines + 1] = self:LevelingLabel(planned)
+  local lines = {
+    '|cff9fc6ff' .. state.name .. '  |  Skill ' .. tostring(state.skill or '?') .. ' / ' .. tostring(state.maxSkill or '?') .. '|r',
+    '',
+    '|cffffd45eLEVELING PLAN|r',
+    routeStepText(planned),
+  }
+  if planned and planned.trainerSoon then
+    lines[#lines + 1] = string.format('Trainer soon: %d point%s to rank cap.', planned.pointsToCap, planned.pointsToCap == 1 and '' or 's')
   end
+
+  local chosen
+  local routeStep = findRouteStep(planned)
+  local routeName = routeStep and routeStep[3]
+  if routeName then
+    for _, option in ipairs(state.options or {}) do
+      if recipeKey(option.name) == recipeKey(routeName) then chosen = option; break end
+    end
+  end
+  if not chosen then chosen = state.options and state.options[1] end
+
   lines[#lines + 1] = ''
   if #state.options == 0 then
-    lines[#lines + 1] = 'No learned recipes can raise this profession right now.'
-    lines[#lines + 1] = 'Learn another recipe or train the next rank, then refresh.'
-  else
-    local best = state.options[1]
-    lines[#lines + 1] = 'RECOMMENDED NEXT CRAFT'
-    lines[#lines + 1] = best.name .. '  (' .. difficultyLabel(best.difficulty) .. ')'
-    if best.available ~= nil then
-      lines[#lines + 1] = best.available > 0 and ('You can make ' .. best.available .. ' with current reagents.') or 'Not enough reagents in your bags for one craft.'
+    lines[#lines + 1] = '|cffffd45eAVAILABLE SKILL-UPS|r'
+    lines[#lines + 1] = 'No learned recipe can raise this skill right now.'
+    lines[#lines + 1] = 'Learn a recipe or train the next rank, then refresh.'
+  elseif chosen then
+    local matchesRoute = routeName and recipeKey(chosen.name) == recipeKey(routeName)
+    lines[#lines + 1] = matchesRoute and '|cffffd45eCRAFT FOR THIS STEP|r' or '|cffffd45eOTHER CURRENT SKILL-UP|r'
+    lines[#lines + 1] = chosen.name .. '  (' .. difficultyLabel(chosen.difficulty) .. ')'
+    if not matchesRoute and routeName then
+      lines[#lines + 1] = 'The route recipe is not currently available as a skill-up.'
+    end
+    if chosen.available ~= nil then
+      lines[#lines + 1] = chosen.available > 0 and ('Craftable now: ' .. chosen.available) or 'Not enough reagents in your bags for one craft.'
     end
     lines[#lines + 1] = ''
-    lines[#lines + 1] = 'Materials for 1 craft:'
-    if #best.reagents == 0 then
+    lines[#lines + 1] = '|cffffd45eMATERIALS FOR ONE CRAFT|r'
+    if #chosen.reagents == 0 then
       lines[#lines + 1] = 'The game did not report reagent details.'
     else
-      for _, slot in ipairs(best.reagents) do
+      for _, slot in ipairs(chosen.reagents) do
         local parts = {}
         for _, reagent in ipairs(slot) do
-          local bagText = reagent.inBags ~= nil and (' (bags: ' .. reagent.inBags .. ')') or ''
+          local bagText = reagent.inBags ~= nil and ('  (bags: ' .. reagent.inBags .. ')') or ''
           parts[#parts + 1] = string.format('%d x %s%s', reagent.amount, reagent.name, bagText)
         end
         lines[#lines + 1] = table.concat(parts, ' OR ')
       end
     end
-    if #state.options > 1 then
-      lines[#lines + 1] = ''
-      lines[#lines + 1] = 'Other recipes that can skill up:'
-      for i = 2, math.min(3, #state.options) do
-        local option = state.options[i]
+    local otherCount = 0
+    for _, option in ipairs(state.options) do
+      if option ~= chosen and otherCount < 2 then
+        if otherCount == 0 then
+          lines[#lines + 1] = ''
+          lines[#lines + 1] = '|cffffd45eOTHER SKILL-UP RECIPES|r'
+        end
         lines[#lines + 1] = option.name .. '  (' .. difficultyLabel(option.difficulty) .. ')'
+        otherCount = otherCount + 1
       end
     end
   end
