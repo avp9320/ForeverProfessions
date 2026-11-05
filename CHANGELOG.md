@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.12
+
+- Added `/fp map` to toggle the World Map route overlay, with `/fp map on` and `/fp map off` to set visibility directly.
+
 ## 0.3.11
 
 - Improved the leveling coach’s contrast, spacing, and section labels.
