@@ -25,15 +25,19 @@ function FP:RefreshCharacter()
   local _,class=UnitClass('player')
   char.class=class
   char.level=UnitLevel('player')
-  char.professions={}
+  -- Keep any profession snapshot from the live recipe scanner. A missing
+  -- profession API should not erase previously observed account data.
+  char.professions=char.professions or {}
+  local observed={}
   if GetProfessions and GetProfessionInfo then
     for _,index in ipairs({GetProfessions()}) do
       if index then
         local name,_,rank,maxRank,_,_,skillLine=GetProfessionInfo(index)
-        if name then char.professions[name]={rank=rank or 0,maxRank=maxRank or 0,skillLine=skillLine} end
+        if name then observed[name]={rank=rank or 0,maxRank=maxRank or 0,skillLine=skillLine} end
       end
     end
   end
+  if next(observed) then char.professions=observed end
   self.db.characters[key]=char
   self.character=char
 end
@@ -65,7 +69,12 @@ function FP:GetRoute()
   while #remaining>0 do
     local best,bestScore=1,math.huge
     for i,n in ipairs(remaining) do
-      local score=distance(current,n)/(1+math.min(n.visits or 1,8)*0.08)
+      -- Prefer nearby observed high-yield nodes without inventing respawn timers.
+      local lootTotal=0
+      for _,v in pairs(n.loot or {}) do lootTotal=lootTotal+(v.count or 0) end
+      local avgYield=lootTotal/math.max(1,n.visits or 1)
+      local weight=1+math.min(n.visits or 1,10)*0.06+math.min(avgYield,4)*0.08
+      local score=distance(current,n)/weight
       if score<bestScore then best,bestScore=i,score end
     end
     local nextNode=table.remove(remaining,best)
@@ -92,6 +101,7 @@ frame:SetScript('OnEvent',function(_,event,arg)
     FP.db.characters=FP.db.characters or {}
     FP.db.settings=FP.db.settings or {}
     FP.db.settings.advisorPriority=FP.db.settings.advisorPriority or 'balanced'
+    FP.db.materialGoals=FP.db.materialGoals or {}
   elseif FP.db and (event=='PLAYER_LOGIN' or event=='SKILL_LINES_CHANGED' or event=='PLAYER_LEVEL_UP') then
     FP:RefreshCharacter()
     FP:RefreshUI()
@@ -107,9 +117,12 @@ SlashCmdList.FOREVERPROFESSIONS=function(input)
   elseif cmd=='resource' then FP:SelectResource(rest)
   elseif cmd=='mark' then FP:Record(rest~='' and rest or nil)
   elseif cmd=='route' then FP:PrintRoute()
-  elseif cmd=='advisor' then FP:ShowAdvisor()
-  elseif cmd=='level' then FP:ShowLeveling()
+  elseif cmd=='advisor' then FP:ShowAdvisor(rest)
+  elseif cmd=='level' then FP:ShowLeveling(rest)
+  elseif cmd=='mats' then FP:ShowMaterials(rest)
+  elseif cmd=='track' then FP:TrackMaterial(rest)
+  elseif cmd=='untrack' then FP:UntrackMaterial(rest)
   elseif cmd=='detect' and (rest or ''):lower()=='debug' then FP:ToggleDetectionDebug()
-  elseif cmd=='help' then FP:Say('/fp show | resource <name> | mark | route | advisor | level | detect debug')
+  elseif cmd=='help' then FP:Say('/fp show | level [profession] | mats [profession] | track <item> <qty> | untrack <item> | resource <name> | mark | route | advisor [balanced|gold|utility|account] | detect debug')
   else FP:Say('Unknown command. Try /fp help') end
 end
