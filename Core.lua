@@ -108,6 +108,7 @@ SlashCmdList.FOREVERPROFESSIONS=function(input)
   elseif cmd=='mark' then FP:Record(rest~='' and rest or nil)
   elseif cmd=='route' then FP:PrintRoute()
   elseif cmd=='advisor' then FP:ShowAdvisor()
+  elseif cmd=='level' then FP:ShowLeveling()
   elseif cmd=='detect' and (rest or ''):lower()=='debug' then FP:ToggleDetectionDebug()
   elseif cmd=='help' then FP:Say('/fp show | resource <name> | mark | route | advisor | detect debug')
   else FP:Say('Unknown command. Try /fp help') end
