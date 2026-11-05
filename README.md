@@ -1,4 +1,4 @@
-# ForeverProfessions — v0.3.6
+# ForeverProfessions — v0.3.7
 
 A minimal, account-aware professions and gathering companion for WoW: Forever.
 
@@ -13,7 +13,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - Skinning gather detection in addition to mining, herbalism and fishing.
 - Automatic node-location recording when a player mining, herbalism, fishing, or skinning action is followed by a loot item.
 - Nodes are stored as **observed locations**, not guaranteed spawns. Nearby gathers update the visit count and item-yield observations.
-- The first detected gather selects its profession route automatically, including when an older manual resource selection was saved.
+- Detected gathers keep the route on the profession being gathered until the player explicitly chooses a route with `/fp resource`.
 - Manual location recording remains available as a fallback.
 - Resource-specific nearest-neighbor gathering loop with a modest preference for frequently visited locations; the route recomputes from your current position.
 - Numbered gathering stops and connecting route lines on the matching World Map zone, shared across characters on the same installation.
