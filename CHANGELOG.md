@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.5
+
+- Connected the 1–300 leveling routes to live profession scans and the Leveling UI/commands.
+- Uses Forever's live recipe skill-up state and learned recipes to choose each next step.
+- Added remaining-route reagent totals for learned recipes, bag/bank counts, and last-seen per-character material snapshots.
+- Added rank-cap reminders and persistent material goals through `/fp track`, `/fp untrack`, and `/fp mats`.
+
+
 ## 0.3.2
 
 - Read Forever's recipe `canSkillUp` and relative-difficulty data instead of assuming the recipe list uses colored text.
