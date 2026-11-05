@@ -27,17 +27,19 @@
 - `/fp track <item ID or name> <quantity>` — track material goal
 - `/fp untrack <item ID or name>` — stop tracking a material
 - `/fp advisor balanced|gold|utility|account` — choose recommendation priority
-- `/fp map [on|off]` — toggle or set World Map route visibility
+- `/fp map` — toggle the World Map route overlay
+- `/fp map on|off` — explicitly show or hide the route
 
-- \`/fp\` — open or close the window
-- \`/fp resource Mining\` — choose the route to view (Mining, Herbalism, or Fishing)
-- \`/fp mark\` — manually record a location for the selected route
-- \`/fp route\` — list the suggested loop
-- \`/fp advisor\` — show two provisional profession pairings
-- \`/fp level\` — show the next-craft coach (open the profession window first)
-- \`/fp detect debug\` — toggle gather-event diagnostics in chat
-- \`/fp help\` — command summary
+- `/fp` — open or close the window
+- `/fp resource Mining` — choose the route to view (Mining, Herbalism, Fishing, or Skinning)
+- `/fp mark` — manually record a location for the selected route
+- `/fp route` — list the suggested loop
+- `/fp advisor` — show two provisional profession pairings
+- `/fp level` — show the next-craft coach
+- `/fp detect debug` — toggle gather-event diagnostics in chat
+- `/fp help` — command summary
 
+The map overlay starts enabled. Its visibility setting is saved across sessions.
 Automatic detection pairs a player gathering cast with a \`CHAT_MSG_LOOT\` event and uses the player position sampled at the cast. Mining, herbalism, and skinning loot is paired for up to 12 seconds; fishing loot is paired for up to 45 seconds. A node is recorded only after a successful cast and an item link. When enabled, debug output shows casts that were not classified. The reliable fallback is \`/fp mark\`.
 
 ## Current limits
