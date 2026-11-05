@@ -32,7 +32,7 @@ function FP:ResolveProfession(request)
   return names[1]
 end
 function FP:SaveRecipeState(state)
-  if not state or not state.name or state.loading or not self.db then return end
+  if not state or not state.name or state.name=="Profession" or state.loading or not self.db then return end
   self.db.characters=self.db.characters or {}
   local char=self.db.characters[playerKey()] or {professions={}}
   char.professions=char.professions or {}
