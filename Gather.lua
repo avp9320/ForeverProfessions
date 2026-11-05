@@ -139,7 +139,12 @@ local function onEvent(_, event, ...)
 
   if event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED" then
     local unit = ...
-    if unit == "player" then clearPending() end
+    if unit == "player" and pending then
+      local _, _, spellID = ...
+      local kind = gatherKind(spellID)
+      -- An unrelated failed spell must not discard a completed gather awaiting loot.
+      if kind and kind == pending.kind and not pending.succeeded then clearPending() end
+    end
     return
   end
 
@@ -169,7 +174,7 @@ local function onEvent(_, event, ...)
     local now = GetTime()
     if not pending or pending.kind ~= kind or now - pending.started > pending.timeout then
       local mapID, x, y = position()
-      if mapID then pending = {kind = kind, spell = spellName, started = now, map = mapID, x = x, y = y, timeout = timeoutFor(kind)} end
+      if mapID then pending = {kind = kind, spell = spellName, started = now, succeeded = now, map = mapID, x = x, y = y, timeout = timeoutFor(kind)} end
     else
       pending.succeeded = now
     end
