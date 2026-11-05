@@ -1,4 +1,4 @@
-# ForeverProfessions — v0.3.4
+# ForeverProfessions — v0.3.5
 
 A minimal, account-aware professions and gathering companion for WoW: Forever.
 
@@ -6,19 +6,19 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 
 - Account-wide SavedVariables database shared by characters on the same installation/account.
 - Skill-aware 1–300 leveling recommendations for the nine primary and three secondary professions.
-- Scans known recipes, difficulty colors, and exact reagents from the profession book (legacy or modern APIs); stores them per character.
-- Automatically recommends a craft based on skill, estimates crafts to the next bracket, and suggests learned orange/yellow alternatives.
-- Tracks needed recipe materials against visible inventory and personal material goals using /fp mats, /fp track and /fp untrack.
+- Reads the game's direct skill-up status and relative difficulty for learned recipes; caches learned route recipes and exact reagents per character.
+- Recommends the next recipe or gathering step from a 1–300 profession route; craft counts are estimates and live skill-up recipes take priority.
+- Totals reagents across the remaining route for recipes the character has learned, compares them with current bags/bank plus last-seen character snapshots, and supports personal material goals through `/fp mats`, `/fp track`, and `/fp untrack`.
 - Account-aware profession advisor supports balanced, gold, utility and account-coverage priorities.
 - Skinning gather detection in addition to mining, herbalism and fishing.
-- Automatic node-location recording when a player mining, herbalism, or fishing cast is followed by a loot item.
+- Automatic node-location recording when a player mining, herbalism, fishing, or skinning action is followed by a loot item.
 - Nodes are stored as **observed locations**, not guaranteed spawns. Nearby gathers update the visit count and item-yield observations.
 - The first detected gather selects its profession route automatically, including when an older manual resource selection was saved.
 - Manual location recording remains available as a fallback.
 - Resource-specific nearest-neighbor gathering loop with a modest preference for frequently visited locations; the route recomputes from your current position.
 - Compact, movable window hidden until requested.
 - Character-specific profession skill snapshots and a provisional pairing advisor. Recommendations combine confirmed Forever profession availability/benefits with labeled Classic supply synergies, not unverified class meta.
-- A character-specific leveling coach: open a profession window and use **Leveling** or `/fp level` to get the next learned recipe that the game reports can still grant a skill-up, materials for one craft, bag counts, and up to two alternatives.
+- The character-specific leveling coach uses the **Leveling** button or `/fp level [profession]` to show the next step, estimated craft count, skill bracket, and materials.
 - Rank trainer reminders when the saved profession skill reaches or nears its current rank cap.
 
 ## Commands
@@ -45,7 +45,7 @@ Automatic detection pairs a player gathering cast with a \`CHAT_MSG_LOOT\` event
 - Forever's modern API uses secret values in some contexts. The detector skips secret spell names, IDs, coordinates, and loot messages rather than trying to inspect them.
 - Live-client verification is still needed for the exact spell names and event order emitted by each gathering profession and for the leveling coach's profession API behavior. If a successful gather is missed, enable \`/fp detect debug\` and use \`/fp mark\` for that spot.
 - Fishing loot may not expose a cast/loot pair in every situation. The detector accepts a loot event for up to 45 seconds after a recognized fishing cast.
-- The leveling coach uses the game's recipe skill-up API (including its skill-up flag and difficulty value); it does not inspect recipe text color or arrow art. It does not yet provide a fixed 1–300 route, total materials for an entire rank, auction-house prices, or an account-wide inventory forecast.
+- Route quantities are guide estimates, and material totals exclude recipes the character has not learned or whose reagents the client has not supplied. Other-character inventory is last-seen while that character was logged in. Auction-house prices and trainer map pins are not included.
 - Profession pairing scores are illustrative estimates, not live class/meta rankings. The separate ProfessionData.lua source defines the nine actual primary professions, three secondary professions, and provisional Classic material pairings. Confirmed Forever data takes priority; no fabricated node maps or recipe data are shipped.
 - Routes are a greedy nearest-neighbor ordering, not terrain-aware pathfinding or spawn timers.
 
