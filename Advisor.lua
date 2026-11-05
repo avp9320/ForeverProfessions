@@ -76,7 +76,15 @@ function FP:ShowAdvisor(mode)
   local first,second,slots=self:GetRecommendations()
   self:Say("Account-aware profession pairings ("..
     (self.db.settings.advisorPriority or "balanced").." priority):")
-  if slots==0 then\n    self:Say("Both primary profession slots are filled. No new pairing is available without unlearning one.")\n    return\n  end\n  if not first then\n    self:Say("No verified candidate pairing fits your open slots and current professions. No unlearning is recommended.")\n    return\n  end\n  for i,entry in ipairs({first,second}) do
+  if slots==0 then
+    self:Say("Both primary profession slots are filled. No new pairing is available without unlearning one.")
+    return
+  end
+  if not first then
+    self:Say("No verified candidate pairing fits your open slots and current professions. No unlearning is recommended.")
+    return
+  end
+  for i,entry in ipairs({first,second}) do
     if entry then
       local p=entry.pair
       local a,b=entry.accountCounts.a,entry.accountCounts.b
