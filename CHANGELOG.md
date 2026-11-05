@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Added a profession leveling coach that recommends learned orange/yellow recipes from the live profession window.
+- Shows reagents required for one craft, current bag counts when available, and up to two alternate skill-up recipes.
+- Added rank-cap trainer reminders, a Leveling button, and `/fp level`.
+
+
 ## 0.2.2
 
 - Automatically switch to the detected profession route on first gather, including when the account has a legacy manual selection saved.
