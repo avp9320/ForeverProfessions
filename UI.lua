@@ -32,24 +32,38 @@ advisor:SetSize(85,24);advisor:SetPoint('BOTTOMRIGHT',-15,15);advisor:SetText('A
 advisor:SetScript('OnClick',function() FP:ShowAdvisor() end)
 function FP:RefreshUI()
   if not self.db then return end
-  local resource=self.db.selectedResource or '(auto-selects after first gather)'
+  local resource=self.db.selectedResource or '(auto on first gather)'
   sub:SetText('Route: '..resource)
-  local route=self:GetRoute()
-  local lines={'Auto-records successful mining, herbalism, and fishing gathers.'}
-  if #route==0 then
-    lines[#lines+1]='No observed locations in this zone yet.'
-    lines[#lines+1]='Gather with a node or use /fp mark.'
-    lines[#lines+1]='Use /fp detect debug if detection misses.'
-  else
-    lines[#lines+1]='Known locations in this zone:'
-    for i=1,math.min(6,#route) do
-      local n=route[i]
-      lines[#lines+1]=string.format('%d. %.1f, %.1f  (%d visits)',i,n.x*100,n.y*100,n.visits or 1)
+  local lines={}
+  if self.GetLevelingSuggestion and self.LevelingLabel then
+    local s=self:GetLevelingSuggestion()
+    lines[#lines+1]='NEXT PROFESSION STEP'
+    lines[#lines+1]=self:LevelingLabel(s)
+    if s and s.materials then
+      local needs=self:GetMaterialNeeds(s)
+      for i=1,math.min(3,#needs) do
+        local n=needs[i]
+        lines[#lines+1]=n.name..': '..n.required..' needed / '..(n.have or '?')..' owned'
+      end
+      if #needs==0 and not s.gather and not s.trainer and not s.done then
+        lines[#lines+1]='Open profession book to scan exact materials.'
+      end
     end
-    if #route>6 then lines[#lines+1]='...and '..(#route-6)..' more locations' end
+    lines[#lines+1]=''
   end
-  content:SetText(table.concat(lines,'\n'))
+  local route=self:GetRoute()
+  if #route==0 then
+    lines[#lines+1]='No observed gathering locations in this zone.'
+  else
+    lines[#lines+1]='Gathering loop ('..#route..' stops):'
+    for i=1,math.min(3,#route) do
+      local n=route[i]
+      lines[#lines+1]=string.format('%d. %.1f, %.1f (%d visits)',i,n.x*100,n.y*100,n.visits or 1)
+    end
+  end
+  content:SetText(table.concat(lines,'\\n'))
 end
+
 function FP:ToggleUI()
   if window:IsShown() then window:Hide() else self:RefreshUI();window:Show() end
 end
