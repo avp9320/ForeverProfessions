@@ -89,6 +89,7 @@ local function readSchematic(recipeID)
           local count = itemCount(reagent.itemID)
           choices[#choices + 1] = {
             name = itemName(reagent.itemID),
+            id = reagent.itemID,
             amount = slot.quantityRequired,
             inBags = count,
           }
@@ -225,16 +226,30 @@ local function trainerReminder(profession)
   end
 end
 
-function FP:RefreshLeveling()
-  if not self.db then return end
+function FP:GetLiveRecipeState()
   local state = readModernProfession()
   if not state then state = readLegacyProfession() end
+  return state
+end
+
+function FP:RefreshLeveling()
+  if not self.db then return end
+  local state = self:GetLiveRecipeState()
+  if state and not state.loading and self.SaveRecipeState then
+    self:SaveRecipeState(state)
+  end
   if not state or state.loading then
-    content:SetText('Open a profession window first, then press Refresh.\n\nThe coach reads the game’s recipe skill-up data directly.')
+    local suggestion = self.GetLevelingSuggestion and self:GetLevelingSuggestion()
+    local guide = suggestion and self:LevelingLabel(suggestion) .. '\n\n' or ''
+    content:SetText(guide .. 'Open a profession window to scan learned recipes and exact reagents.')
     return
   end
 
   local lines = {state.name .. '  |  Skill ' .. tostring(state.skill or '?') .. ' / ' .. tostring(state.maxSkill or '?')}
+  local planned = self.GetLevelingSuggestion and self:GetLevelingSuggestion(state.name)
+  if planned then
+    lines[#lines + 1] = self:LevelingLabel(planned)
+  end
   local reminder = trainerReminder(state.name)
   if reminder then
     lines[#lines + 1] = ''
@@ -277,15 +292,20 @@ function FP:RefreshLeveling()
   content:SetText(table.concat(lines, '\n'))
 end
 
-function FP:ShowLeveling()
+function FP:ShowLeveling(request)
+  if self.db and request and request ~= '' and self.ResolveProfession then
+    local chosen = self:ResolveProfession(request)
+    if chosen then self.db.selectedProfession = chosen end
+  end
   self:RefreshLeveling()
   window:Show()
 end
 
 local events = CreateFrame('Frame')
-events:RegisterEvent('TRADE_SKILL_SHOW')
-events:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
-events:RegisterEvent('TRADE_SKILL_CLOSE')
+for _, event in ipairs({'TRADE_SKILL_SHOW', 'TRADE_SKILL_LIST_UPDATE',
+  'TRADE_SKILL_CLOSE', 'TRADE_SKILL_UPDATE', 'CRAFT_SHOW', 'CRAFT_UPDATE'}) do
+  pcall(events.RegisterEvent, events, event)
+end
 events:SetScript('OnEvent', function()
   if window:IsShown() then FP:RefreshLeveling() end
 end)
