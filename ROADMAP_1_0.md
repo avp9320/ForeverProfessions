@@ -18,3 +18,8 @@ This is a release gate, not a claim of implementation. README claims and static 
 ## Status
 
 Pre-1.0. Features described in README may be implemented but are not accepted as verified here until tested. Avoid declaring v1.0 solely on version metadata.
+
+## Phase 1 — gathering ownership filter (2026-11-05)
+
+- [x] `Gather.lua` `isOwnLoot` now checks `CHAT_MSG_LOOT` against localized Blizzard self-loot templates before associating an item with a pending gathering cast (commit `f3214c1`). Other party members' loot must not create observed nodes. This is code implementation only, not a live-client success claim.
+- [ ] Verify the four localized self-loot formats, stack counts, ordinary solo gathers, party members looting during a pending cast, and client-specific alternate loot messages. Unknown formats deliberately do not create nodes; `/fp mark` remains available. Lua runtime and live-client verification pending.
