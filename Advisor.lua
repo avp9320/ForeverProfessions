@@ -16,26 +16,46 @@ local function coverage(db)
   end
   return result
 end
+-- Keep a character's existing primary professions. Recommendations must be
+-- attainable without silently asking the player to unlearn a profession.
+local function currentPrimaries(self)
+  local owned={}
+  for name in pairs(self.character and self.character.professions or {}) do
+    if self.ProfessionData.primary[name] then owned[name]=true end
+  end
+  return owned
+end
 function FP:GetRecommendations()
   if not self.ProfessionData or not self.db then return nil,nil end
   local existing=coverage(self.db)
+  local owned=currentPrimaries(self)
+  local ownedCount=0
+  for _ in pairs(owned) do ownedCount=ownedCount+1 end
+  local slots=math.max(0,(self.ProfessionData.primaryLimit or 2)-ownedCount)
   local mode=self.db.settings.advisorPriority or "balanced"
   local w=weights[mode] or weights.balanced
   local scored={}
+  if slots==0 then return nil,nil,slots end
   for _,p in ipairs(self.ProfessionData.pairings or {}) do
     if self.ProfessionData.primary[p.a] and self.ProfessionData.primary[p.b] then
-      local a,b=existing[p.a] or 0,existing[p.b] or 0
-      local missing=(a==0 and 1 or 0)+(b==0 and 1 or 0)
-      local craft=(self.ProfessionData.primary[p.a]=="crafting" and 1 or 0)
-                +(self.ProfessionData.primary[p.b]=="crafting" and 1 or 0)
-      local dualGather=(craft==0) and 1 or 0
-      local complement=((a>0 and b==0) or (b>0 and a==0)) and 1 or 0
-      local score=p.utility*w.utility-p.effort*w.effort
-                 +missing*w.coverage+craft*w.craft+dualGather*w.gold
-                 +complement*w.coverage*0.5
-                 -math.max(0,a-1)*0.2-math.max(0,b-1)*0.2
-      scored[#scored+1]={pair=p,score=score,missing=missing,
-        accountCounts={a=a,b=b},complement=complement}
+      local requires=(owned[p.a] and 0 or 1)+(owned[p.b] and 0 or 1)
+      -- With one profession already learned, only offer combinations
+      -- containing it; with zero learned, offer complete pairings.
+      if requires>0 and requires<=slots and (ownedCount==0 or owned[p.a] or owned[p.b]) then
+        local a,b=existing[p.a] or 0,existing[p.b] or 0
+        local missing=(a==0 and 1 or 0)+(b==0 and 1 or 0)
+        local craft=(self.ProfessionData.primary[p.a]=="crafting" and 1 or 0)
+                  +(self.ProfessionData.primary[p.b]=="crafting" and 1 or 0)
+        local dualGather=(craft==0) and 1 or 0
+        local complement=((a>0 and b==0) or (b>0 and a==0)) and 1 or 0
+        local score=p.utility*w.utility-p.effort*w.effort
+                   +missing*w.coverage+craft*w.craft+dualGather*w.gold
+                   +complement*w.coverage*0.5
+                   -math.max(0,a-1)*0.2-math.max(0,b-1)*0.2
+        scored[#scored+1]={pair=p,score=score,missing=missing,
+          accountCounts={a=a,b=b},complement=complement,
+          newProfessions=requires}
+      end
     end
   end
   table.sort(scored,function(a,b)
@@ -44,7 +64,7 @@ function FP:GetRecommendations()
     end
     return a.score>b.score
   end)
-  return scored[1],scored[2]
+  return scored[1],scored[2],slots
 end
 function FP:ShowAdvisor(mode)
   if not self.db then return end
@@ -53,10 +73,10 @@ function FP:ShowAdvisor(mode)
     if not weights[mode] then self:Say("Advisor modes: balanced, gold, utility, account");return end
     self.db.settings.advisorPriority=mode
   end
-  local first,second=self:GetRecommendations()
+  local first,second,slots=self:GetRecommendations()
   self:Say("Account-aware profession pairings ("..
     (self.db.settings.advisorPriority or "balanced").." priority):")
-  for i,entry in ipairs({first,second}) do
+  if slots==0 then\n    self:Say("Both primary profession slots are filled. No new pairing is available without unlearning one.")\n    return\n  end\n  if not first then\n    self:Say("No verified candidate pairing fits your open slots and current professions. No unlearning is recommended.")\n    return\n  end\n  for i,entry in ipairs({first,second}) do
     if entry then
       local p=entry.pair
       local a,b=entry.accountCounts.a,entry.accountCounts.b
