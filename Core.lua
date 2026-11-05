@@ -86,6 +86,49 @@ function FP:GetRoute()
     local nextNode=table.remove(remaining,best)
     route[#route+1]=nextNode;current=nextNode
   end
+  -- Improve the initial greedy order with bounded 2-opt passes. Include the
+  -- return leg so the displayed route is a useful repeatable gathering loop.
+  -- Coordinates are zone-relative, so this is geometric optimization only;
+  -- it does not claim to account for terrain or inaccessible paths.
+  local function leg(a,b)
+    return math.sqrt(distance(a,b))
+  end
+  if #route >= 3 and #route <= 100 then
+    local function loopLength()
+      local total=leg(current,route[1])
+      for i=1,#route-1 do total=total+leg(route[i],route[i+1]) end
+      return total+leg(route[#route],route[1])
+    end
+    -- Keep the first stop nearest the player; optimize the remaining circuit.
+    -- Limit work on densely observed zones to keep map refresh responsive.
+    local bestLength=loopLength()
+    local passes=0
+    local improved=true
+    while improved and passes<4 do
+      passes=passes+1
+      improved=false
+      for i=2,#route-1 do
+        for j=i+1,#route do
+          local left,right=i,j
+          while left<right do
+            route[left],route[right]=route[right],route[left]
+            left=left+1;right=right-1
+          end
+          local candidate=loopLength()
+          if candidate+0.000001<bestLength then
+            bestLength=candidate
+            improved=true
+          else
+            left,right=i,j
+            while left<right do
+              route[left],route[right]=route[right],route[left]
+              left=left+1;right=right-1
+            end
+          end
+        end
+      end
+    end
+  end
   return route,map
 end
 function FP:SelectResource(name)
