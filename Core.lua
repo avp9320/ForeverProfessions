@@ -95,7 +95,7 @@ function FP:GetRoute()
   end
   if #route >= 3 and #route <= 100 then
     local function loopLength()
-      local total=leg(current,route[1])
+      local total=leg({x=x,y=y},route[1])
       for i=1,#route-1 do total=total+leg(route[i],route[i+1]) end
       return total+leg(route[#route],route[1])
     end
