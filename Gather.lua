@@ -92,9 +92,12 @@ local function recordGather(candidate, itemName, itemID)
 end
 
 selectAutoRoute = function(kind)
-  local selected = FP.db and FP.db.selectedResource
-  if not selected or (selected ~= "Mining" and selected ~= "Herbalism" and selected ~= "Fishing" and selected ~= "Skinning") then
-    FP.db.selectedResource = kind
+  local db=FP.db
+  if not db then return end
+  -- Automatically follow the profession from the latest successful gather.
+  -- Stop switching only after the player explicitly uses /fp resource.
+  if db.manualResourceSelection ~= true and db.selectedResource ~= kind then
+    db.selectedResource = kind
   end
 end
 
