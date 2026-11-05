@@ -1,4 +1,4 @@
-# ForeverProfessions — v0.3.9
+# ForeverProfessions — v0.3.10
 
 A minimal, account-aware professions and gathering companion for WoW: Forever.
 
