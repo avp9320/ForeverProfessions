@@ -110,6 +110,6 @@ SlashCmdList.FOREVERPROFESSIONS=function(input)
   elseif cmd=='advisor' then FP:ShowAdvisor()
   elseif cmd=='level' then FP:ShowLeveling()
   elseif cmd=='detect' and (rest or ''):lower()=='debug' then FP:ToggleDetectionDebug()
-  elseif cmd=='help' then FP:Say('/fp show | resource <name> | mark | route | advisor | detect debug')
+  elseif cmd=='help' then FP:Say('/fp show | resource <name> | mark | route | advisor | level | detect debug')
   else FP:Say('Unknown command. Try /fp help') end
 end
