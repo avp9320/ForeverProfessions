@@ -5,7 +5,9 @@ local detector = CreateFrame("Frame")
 local pending
 
 local function isSecret(value)
-  return issecretvalue and issecretvalue(value)
+  if type(issecretvalue)~="function" then return false end
+  local ok,result=pcall(issecretvalue,value)
+  return ok and result==true
 end
 
 local function position()
@@ -113,15 +115,19 @@ local function onEvent(_, event, ...)
   if event == "ADDON_LOADED" then
     local addonName = ...
     if addonName == "ForeverProfessions" then
-      detector:RegisterUnitEvent("UNIT_SPELLCAST_START", "player")
-      detector:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", "player")
-      detector:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
-      detector:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", "player")
-      detector:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", "player")
-      detector:RegisterEvent("CHAT_MSG_LOOT")
-      detector:RegisterEvent("PLAYER_REGEN_DISABLED")
-      detector:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-      detector:RegisterEvent("PLAYER_ENTERING_WORLD")
+      for _,name in ipairs({
+        "UNIT_SPELLCAST_START", "UNIT_SPELLCAST_CHANNEL_START",
+        "UNIT_SPELLCAST_SUCCEEDED", "UNIT_SPELLCAST_FAILED",
+        "UNIT_SPELLCAST_INTERRUPTED"
+      }) do
+        pcall(detector.RegisterUnitEvent,detector,name,"player")
+      end
+      for _,name in ipairs({
+        "CHAT_MSG_LOOT","PLAYER_REGEN_DISABLED",
+        "ZONE_CHANGED_NEW_AREA","PLAYER_ENTERING_WORLD"
+      }) do
+        pcall(detector.RegisterEvent,detector,name)
+      end
     end
     return
   end
