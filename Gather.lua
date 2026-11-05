@@ -34,6 +34,29 @@ local function gatherKind(spellID)
   return nil, name
 end
 
+-- Only attribute the player's own loot to a gathering cast. CHAT_MSG_LOOT
+-- also includes other party members' loot, which must never create nodes.
+-- Use the client's localized self-loot templates instead of English text.
+local function isOwnLoot(message)
+  if not message or isSecret(message) then return false end
+  for _,key in ipairs({"LOOT_ITEM_SELF", "LOOT_ITEM_SELF_MULTIPLE",
+                       "LOOT_ITEM_PUSHED_SELF", "LOOT_ITEM_PUSHED_SELF_MULTIPLE"}) do
+    local template = _G[key]
+    if type(template)=="string" and not isSecret(template) then
+      -- Convert Blizzard's printf template into an anchored Lua pattern.
+      -- %s is an item link, %d is a stack count; %% is a literal percent.
+      local pattern = "^" .. template:gsub("([%^%$%(%)%.%[%]%*%+%-%?])", "%%%1")
+        :gsub("%%%%", "\001")
+        :gsub("%%[%d%.]*%$?s", ".+")
+        :gsub("%%[%d%.]*%$?d", "%%d+")
+        :gsub("\001", "%%%%") .. "$"
+      local ok, matched = pcall(string.match, message, pattern)
+      if ok and matched then return true end
+    end
+  end
+  return false
+end
+
 local function itemFromLoot(message)
   if not message or isSecret(message) then return end
   local link = message:match("(|Hitem:[^|]+|h%[[^%]]+%]|h)")
@@ -189,6 +212,7 @@ local function onEvent(_, event, ...)
   if event == "CHAT_MSG_LOOT" then
     if not pending or GetTime() - pending.started > pending.timeout then clearPending(); return end
     local message = ...
+    if not isOwnLoot(message) then return end
     local itemName, itemID = itemFromLoot(message)
     if itemName then
       if pending.succeeded then
