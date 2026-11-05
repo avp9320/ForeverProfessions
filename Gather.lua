@@ -166,7 +166,8 @@ local function onEvent(_, event, ...)
       local _, _, spellID = ...
       local kind = gatherKind(spellID)
       -- An unrelated failed spell must not discard a completed gather awaiting loot.
-      if kind and kind == pending.kind and not pending.succeeded then clearPending() end
+      if kind and kind == pending.kind and not pending.succeeded
+        and spellID and not isSecret(spellID) and pending.spellID == spellID then clearPending() end
     end
     return
   end
@@ -181,7 +182,7 @@ local function onEvent(_, event, ...)
     end
     local mapID, x, y = position()
     if mapID then
-      pending = {kind = kind, spell = spellName, started = GetTime(), map = mapID, x = x, y = y, timeout = timeoutFor(kind)}
+      pending = {kind = kind, spell = spellName, spellID = spellID, started = GetTime(), map = mapID, x = x, y = y, timeout = timeoutFor(kind)}
     end
     return
   end
@@ -195,9 +196,9 @@ local function onEvent(_, event, ...)
       return
     end
     local now = GetTime()
-    if not pending or pending.kind ~= kind or now - pending.started > pending.timeout then
+    if not pending or pending.kind ~= kind or pending.spellID ~= spellID or now - pending.started > pending.timeout then
       local mapID, x, y = position()
-      if mapID then pending = {kind = kind, spell = spellName, started = now, succeeded = now, map = mapID, x = x, y = y, timeout = timeoutFor(kind)} end
+      if mapID then pending = {kind = kind, spell = spellName, spellID = spellID, started = now, succeeded = now, map = mapID, x = x, y = y, timeout = timeoutFor(kind)} end
     else
       pending.succeeded = now
     end
