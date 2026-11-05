@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- Repackaged the complete profession leveling coach, UI button, and `/fp level` command in the WoWUp release.
+
+
 ## 0.3.0
 
 - Added a profession leveling coach that recommends learned orange/yellow recipes from the live profession window.
