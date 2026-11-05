@@ -1,6 +1,7 @@
 -- Profession leveling coach. Forever's modern profession API exposes
 -- canSkillUp and relativeDifficulty; the UI's arrow art is presentation only.
 local _, FP = ...
+local function recipeKey(value) return tostring(value or ''):lower():gsub('[^%a%d]','') end
 
 local window = CreateFrame('Frame', 'ForeverProfessionsLevelingWindow', UIParent, 'BackdropTemplate')
 window:SetSize(360, 330)
@@ -93,10 +94,10 @@ local function readSchematic(recipeID)
             amount = slot.quantityRequired,
             inBags = count,
           }
-          units = units + slot.quantityRequired
         end
       end
       if #choices > 0 then
+        units = units + slot.quantityRequired
         table.sort(choices, function(a, b)
           local aEnough = a.inBags and a.inBags >= a.amount
           local bEnough = b.inBags and b.inBags >= b.amount
@@ -127,25 +128,37 @@ local function readModernProfession()
     if infoOK then baseInfo = info end
   end
 
-  local options = {}
+  local options, recipes = {}, {}
+  local routeNames = {}
+  local profession = baseInfo and FP.ResolveProfession and FP:ResolveProfession(baseInfo.professionName)
+  for _, step in ipairs(FP.LevelingData and FP.LevelingData[profession] or {}) do
+    routeNames[recipeKey(step[3])] = true
+  end
   for _, recipeID in ipairs(recipeIDs) do
     local infoOK, info = pcall(api.GetRecipeInfo, recipeID)
-    if infoOK and type(info) == 'table' and info.learned and info.canSkillUp then
-      local reagents, reagentUnits = readSchematic(recipeID)
-      local available
-      if api.GetCraftableCount then
-        local countOK, count = pcall(api.GetCraftableCount, recipeID)
-        if countOK then available = count end
-      end
-      options[#options + 1] = {
-        id=recipeID,
-        name=info.name or ('Recipe ' .. tostring(recipeID)),
-        difficulty=info.relativeDifficulty,
-        available=available,
-        enough=available and available > 0 or false,
-        reagents=reagents,
-        reagentUnits=reagentUnits,
+    if infoOK and type(info) == 'table' and info.name and info.learned then
+      local canSkillUp = info.canSkillUp == true
+      local recipe = {
+        id=recipeID,name=info.name,learned=true,canSkillUp=canSkillUp,
+        difficulty=info.relativeDifficulty,materials={},
       }
+      if canSkillUp or routeNames[recipeKey(info.name)] then
+        recipe.materials = readSchematic(recipeID)
+      end
+      recipes[recipeKey(info.name)] = recipe
+      if canSkillUp then
+        local reagents, reagentUnits = readSchematic(recipeID)
+        local available
+        if api.GetCraftableCount then
+          local countOK, count = pcall(api.GetCraftableCount, recipeID)
+          if countOK then available = count end
+        end
+        options[#options + 1] = {
+          id=recipeID,name=info.name,difficulty=info.relativeDifficulty,
+          available=available,enough=available and available > 0 or false,
+          reagents=reagents,reagentUnits=reagentUnits,
+        }
+      end
     end
   end
 
@@ -162,6 +175,7 @@ local function readModernProfession()
     skill=baseInfo and baseInfo.skillLevel,
     maxSkill=baseInfo and baseInfo.maxSkillLevel,
     options=options,
+    recipes=recipes,
     modern=true,
   }
 end
