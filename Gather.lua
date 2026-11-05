@@ -91,7 +91,7 @@ end
 
 selectAutoRoute = function(kind)
   local selected = FP.db and FP.db.selectedResource
-  if not selected or (selected ~= "Mining" and selected ~= "Herbalism" and selected ~= "Fishing") then
+  if not selected or (selected ~= "Mining" and selected ~= "Herbalism" and selected ~= "Fishing" and selected ~= "Skinning") then
     FP.db.selectedResource = kind
   end
 end
