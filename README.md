@@ -9,7 +9,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - Reads the game's direct skill-up status and relative difficulty for learned recipes; caches learned route recipes and exact reagents per character.
 - Recommends the next recipe or gathering step from a 1–300 profession route; craft counts are estimates and live skill-up recipes take priority.
 - Totals reagents across the remaining route for recipes the character has learned, compares them with current bags/bank plus last-seen character snapshots, and supports personal material goals through `/fp mats`, `/fp track`, and `/fp untrack`.
-- Account-aware profession advisor supports balanced, gold, utility and account-coverage priorities.
+- Account-aware profession advisor supports balanced, gold, utility and account-coverage priorities. It respects the current character's occupied primary profession slots and will not recommend dropping an existing profession to fit a proposed pair.
 - Skinning gather detection in addition to mining, herbalism and fishing.
 - Automatic node-location recording when a player mining, herbalism, fishing, or skinning action is followed by a loot item.
 - Nodes are stored as **observed locations**, not guaranteed spawns. Nearby gathers update the visit count and item-yield observations.
