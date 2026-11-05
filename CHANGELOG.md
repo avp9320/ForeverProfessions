@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.6
+
+- Added numbered observed gathering stops and connecting loop lines to the matching World Map zone.
+- The route overlay refreshes when a gather is detected and uses account-wide saved nodes.
+
+
 ## 0.3.5
 
 - Connected the 1–300 leveling routes to live profession scans and the Leveling UI/commands.
