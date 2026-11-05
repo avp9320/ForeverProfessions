@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.8
+
+- Improved the leveling coach’s contrast, spacing, and section labels.
+- Separated the 1–300 route target from live skill-up recipe choices and aligned material details with the selected recipe.
+
 ## 0.3.7
 
 - Fixed automatic route selection so detected gathers switch away from a legacy saved selection.
