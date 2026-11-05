@@ -61,7 +61,7 @@ function FP:RefreshUI()
       lines[#lines+1]=string.format('%d. %.1f, %.1f (%d visits)',i,n.x*100,n.y*100,n.visits or 1)
     end
   end
-  content:SetText(table.concat(lines,'\\n'))
+  content:SetText(table.concat(lines,'\n'))
 end
 
 function FP:ToggleUI()
