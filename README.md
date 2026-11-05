@@ -1,4 +1,4 @@
-# ForeverProfessions — v0.2.3
+# ForeverProfessions — v0.3.0
 
 A minimal, account-aware professions and gathering companion for WoW: Forever.
 
@@ -12,6 +12,8 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - Resource-specific nearest-neighbor gathering loop with a modest preference for frequently visited locations; the route recomputes from your current position.
 - Compact, movable window hidden until requested.
 - Character-specific profession skill snapshots and a provisional pairing advisor. Recommendations combine confirmed Forever profession availability/benefits with labeled Classic supply synergies, not unverified class meta.
+- A character-specific leveling coach: open a profession window and use **Leveling** or `/fp level` to get the next learned orange/yellow recipe, materials for one craft, bag counts, and up to two alternatives.
+- Rank trainer reminders when the saved profession skill reaches or nears its current rank cap.
 
 ## Commands
 
@@ -20,6 +22,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - \`/fp mark\` — manually record a location for the selected route
 - \`/fp route\` — list the suggested loop
 - \`/fp advisor\` — show two provisional profession pairings
+- \`/fp level\` — show the next-craft coach (open the profession window first)
 - \`/fp detect debug\` — toggle gather-event diagnostics in chat
 - \`/fp help\` — command summary
 
@@ -28,9 +31,9 @@ Automatic detection pairs a player gathering cast with a \`CHAT_MSG_LOOT\` event
 ## Current limits
 
 - Forever's modern API uses secret values in some contexts. The detector skips secret spell names, IDs, coordinates, and loot messages rather than trying to inspect them.
-- Live-client verification is still needed for the exact spell names and event order emitted by each gathering profession. If a successful gather is missed, enable \`/fp detect debug\` and use \`/fp mark\` for that spot.
+- Live-client verification is still needed for the exact spell names and event order emitted by each gathering profession and for the leveling coach's profession API behavior. If a successful gather is missed, enable \`/fp detect debug\` and use \`/fp mark\` for that spot.
 - Fishing loot may not expose a cast/loot pair in every situation. The detector accepts a loot event for up to 45 seconds after a recognized fishing cast.
-- World map route overlay, profession leveling plans/material totals, and trainer reminders are not implemented yet.
+- The leveling coach uses recipes learned by the character and the live skill-up colors shown by the game. It does not yet provide a fixed 1–300 route, total materials for an entire rank, auction-house prices, or an account-wide inventory forecast.
 - Profession pairing scores are illustrative estimates, not live class/meta rankings. The separate ProfessionData.lua source defines the nine actual primary professions, three secondary professions, and provisional Classic material pairings. Confirmed Forever data takes priority; no fabricated node maps or recipe data are shipped.
 - Routes are a greedy nearest-neighbor ordering, not terrain-aware pathfinding or spawn timers.
 
