@@ -6,6 +6,15 @@ local mapFrame = CreateFrame("Frame", "ForeverProfessionsMapRoute", UIParent)
 mapFrame:Hide()
 
 local pins, lines = {}, {}
+-- Lua 5.1 has math.atan(y, x) on many clients, but not math.atan2.
+-- Do not make the entire map overlay fail if either signature is unavailable.
+local function angle(y, x)
+  if type(math.atan2) == "function" then return math.atan2(y, x) end
+  if x == 0 then return y >= 0 and math.pi / 2 or -math.pi / 2 end
+  local a = math.atan(y / x)
+  if x < 0 then a = a + (y >= 0 and math.pi or -math.pi) end
+  return a
+end
 local currentMap
 
 local function mapID()
@@ -154,7 +163,7 @@ function FP:RefreshRouteMap()
       line:ClearAllPoints()
       line:SetSize(length, 3)
       line:SetPoint("CENTER", mapFrame, "TOPLEFT", (px + x1) / 2, -(py + y1) / 2)
-      line:SetRotation(math.atan2(-dy, dx))
+      line:SetRotation(angle(-dy, dx))
       line:Show()
     end
   end
@@ -164,10 +173,13 @@ function FP:RefreshRouteMap()
 end
 
 local events = CreateFrame("Frame")
-events:RegisterEvent("WORLD_MAP_UPDATE")
-events:RegisterEvent("WORLD_MAP_OPEN")
-events:RegisterEvent("WORLD_MAP_CLOSE")
-events:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+for _, event in ipairs({
+  "WORLD_MAP_UPDATE", "WORLD_MAP_OPEN", "WORLD_MAP_CLOSE",
+  "ZONE_CHANGED_NEW_AREA", "PLAYER_ENTERING_WORLD"
+}) do
+  -- Not every event exists in every hybrid WoW client.
+  pcall(events.RegisterEvent, events, event)
+end
 events:SetScript("OnEvent", function(_, event)
   if event == "WORLD_MAP_CLOSE" then
     mapFrame:Hide()
