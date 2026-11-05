@@ -264,11 +264,6 @@ function FP:RefreshLeveling(requested)
   if planned then
     lines[#lines + 1] = self:LevelingLabel(planned)
   end
-  local reminder = trainerReminder(state.name)
-  if reminder then
-    lines[#lines + 1] = ''
-    lines[#lines + 1] = reminder
-  end
   lines[#lines + 1] = ''
   if #state.options == 0 then
     lines[#lines + 1] = 'No learned recipes can raise this profession right now.'
