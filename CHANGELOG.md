@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2
+
+- Read Forever's recipe `canSkillUp` and relative-difficulty data instead of assuming the recipe list uses colored text.
+- Added recipe material reading through the modern profession schematic API, including alternative reagents and bag counts.
+
+
 ## 0.3.1
 
 - Repackaged the complete profession leveling coach, UI button, and `/fp level` command in the WoWUp release.
