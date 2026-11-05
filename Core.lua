@@ -30,10 +30,16 @@ function FP:RefreshCharacter()
   char.professions=char.professions or {}
   local observed={}
   if GetProfessions and GetProfessionInfo then
-    for _,index in ipairs({GetProfessions()}) do
+    -- Profession slots may contain nil holes (especially secondary skills).
+    -- ipairs stops at the first hole and silently loses every later skill.
+    local ids={GetProfessions()}
+    for i=1,6 do
+      local index=ids[i]
       if index then
-        local name,_,rank,maxRank,_,_,skillLine=GetProfessionInfo(index)
-        if name then observed[name]={rank=rank or 0,maxRank=maxRank or 0,skillLine=skillLine} end
+        local ok,name,_,rank,maxRank,_,_,skillLine=pcall(GetProfessionInfo,index)
+        if ok and name then
+          observed[name]={rank=rank or 0,maxRank=maxRank or 0,skillLine=skillLine}
+        end
       end
     end
   end
@@ -90,10 +96,9 @@ function FP:SelectResource(name)
   self:RefreshUI()
 end
 function FP:RefreshUI() end
-frame:RegisterEvent('ADDON_LOADED')
-frame:RegisterEvent('PLAYER_LOGIN')
-frame:RegisterEvent('SKILL_LINES_CHANGED')
-frame:RegisterEvent('PLAYER_LEVEL_UP')
+for _,event in ipairs({'ADDON_LOADED','PLAYER_LOGIN','SKILL_LINES_CHANGED','PLAYER_LEVEL_UP'}) do
+  pcall(frame.RegisterEvent,frame,event)
+end
 frame:SetScript('OnEvent',function(_,event,arg)
   if event=='ADDON_LOADED' and arg==addonName then
     ForeverProfessionsDB=ForeverProfessionsDB or {}
