@@ -132,3 +132,4 @@ FP.LevelingData = {
     {225,300,"Fish in high-level zones"},
   },
 }
+FP.LevelingData["First Aid"] = FP.LevelingData.FirstAid
