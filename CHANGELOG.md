@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.7
+
+- Fixed automatic route selection so detected gathers switch away from a legacy saved selection.
+- Explicit `/fp resource` choices now remain in control of the route.
+
+
 ## 0.3.6
 
 - Added numbered observed gathering stops and connecting loop lines to the matching World Map zone.
