@@ -4,7 +4,7 @@ local _, FP = ...
 local function recipeKey(value) return tostring(value or ''):lower():gsub('[^%a%d]','') end
 
 local window = CreateFrame('Frame', 'ForeverProfessionsLevelingWindow', UIParent, 'BackdropTemplate')
-window:SetSize(410, 360)
+window:SetSize(360, 330)
 window:SetPoint('CENTER')
 window:SetFrameStrata('DIALOG')
 window:SetMovable(true)
@@ -27,9 +27,10 @@ close:SetPoint('TOPRIGHT', 0, 0)
 local content = window:CreateFontString(nil, 'OVERLAY', 'GameFontHighlight')
 content:SetPoint('TOPLEFT', window, 'TOPLEFT', 20, -58)
 content:SetPoint('TOPRIGHT', window, 'TOPRIGHT', -20, -58)
-content:SetHeight(265)
+content:SetHeight(230)
 content:SetJustifyH('LEFT')
 content:SetJustifyV('TOP')
+content:SetFontObject('GameFontHighlightSmall')
 
 local refresh = CreateFrame('Button', nil, window, 'UIPanelButtonTemplate')
 refresh:SetSize(110, 24)
@@ -267,7 +268,7 @@ local function routeStepText(s)
   local to = tonumber(step[2]) or from
   local estimate = tonumber(step[4]) or math.max(1, to - from)
   estimate = math.max(1, math.ceil(estimate * math.max(0, to - from) / math.max(1, to - (tonumber(step[1]) or from))))
-  local text = string.format('%d–%d: %s  (~%d crafts; estimate)', from, to, step[3], estimate)
+  local text = string.format('%d–%d: %s  (~%d crafts est.)', from, to, step[3], estimate)
   return text
 end
 
