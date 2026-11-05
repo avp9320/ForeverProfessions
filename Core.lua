@@ -85,6 +85,7 @@ end
 function FP:SelectResource(name)
   if not name or name=='' then self:Say('Usage: /fp resource Mining'); return end
   self.db.selectedResource=name
+  self.db.manualResourceSelection=true
   self:Say('Tracking '..name..'. Routes use observed locations in the current zone.')
   self:RefreshUI()
 end
