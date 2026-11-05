@@ -10,7 +10,7 @@ This is a release gate, not a claim of implementation. README claims and static 
 
 ## Evidence
 
-- Code review: pending
+- Code review: 2026-11-05 — inspected Gather.lua and corrected two event-order defects (commit 2679a41): SUCCEEDED without START now marks a gather successful; unrelated failed casts no longer clear a completed gather waiting for loot. Static inspection only; exact live event ordering and loot matching remain unverified.
 - Automated/static tests: pending
 - Live WoW: Forever client verification: pending
 - Release ZIP and WoWUp installation: pending
