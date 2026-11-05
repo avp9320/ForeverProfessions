@@ -1,4 +1,4 @@
-# ForeverProfessions — v0.3.5
+# ForeverProfessions — v0.3.6
 
 A minimal, account-aware professions and gathering companion for WoW: Forever.
 
@@ -16,6 +16,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - The first detected gather selects its profession route automatically, including when an older manual resource selection was saved.
 - Manual location recording remains available as a fallback.
 - Resource-specific nearest-neighbor gathering loop with a modest preference for frequently visited locations; the route recomputes from your current position.
+- Numbered gathering stops and connecting route lines on the matching World Map zone, shared across characters on the same installation.
 - Compact, movable window hidden until requested.
 - Character-specific profession skill snapshots and a provisional pairing advisor. Recommendations combine confirmed Forever profession availability/benefits with labeled Classic supply synergies, not unverified class meta.
 - The character-specific leveling coach uses the **Leveling** button or `/fp level [profession]` to show the next step, estimated craft count, skill bracket, and materials.
@@ -38,7 +39,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - \`/fp detect debug\` — toggle gather-event diagnostics in chat
 - \`/fp help\` — command summary
 
-Automatic detection pairs a player gathering cast with a \`CHAT_MSG_LOOT\` event and uses the player position sampled at the cast. Mining and herbalism loot is paired for up to 12 seconds; fishing loot is paired for up to 45 seconds. A node is recorded only after a successful cast and an item link. When enabled, debug output shows casts that were not classified. The reliable fallback is \`/fp mark\`.
+Automatic detection pairs a player gathering cast with a \`CHAT_MSG_LOOT\` event and uses the player position sampled at the cast. Mining, herbalism, and skinning loot is paired for up to 12 seconds; fishing loot is paired for up to 45 seconds. A node is recorded only after a successful cast and an item link. When enabled, debug output shows casts that were not classified. The reliable fallback is \`/fp mark\`.
 
 ## Current limits
 
@@ -47,7 +48,7 @@ Automatic detection pairs a player gathering cast with a \`CHAT_MSG_LOOT\` event
 - Fishing loot may not expose a cast/loot pair in every situation. The detector accepts a loot event for up to 45 seconds after a recognized fishing cast.
 - Route quantities are guide estimates, and material totals exclude recipes the character has not learned or whose reagents the client has not supplied. Other-character inventory is last-seen while that character was logged in. Auction-house prices and trainer map pins are not included.
 - Profession pairing scores are illustrative estimates, not live class/meta rankings. The separate ProfessionData.lua source defines the nine actual primary professions, three secondary professions, and provisional Classic material pairings. Confirmed Forever data takes priority; no fabricated node maps or recipe data are shipped.
-- Routes are a greedy nearest-neighbor ordering, not terrain-aware pathfinding or spawn timers.
+- Map markers appear when the World Map shows the same zone as the saved gathering locations. Routes are a greedy nearest-neighbor ordering, not terrain-aware pathfinding or spawn timers.
 
 ## Install
 
@@ -64,4 +65,4 @@ GitHub Actions publishes a versioned release ZIP for WoWUp when a push advances 
 
 ## Design
 
-No automatic profession purchases, no chat spam by default, and no permanent overlay. Future additions should remain optional and context-sensitive.
+No automatic profession purchases and no chat spam by default. The gathering route overlay appears only on the World Map. Future additions should remain optional and context-sensitive.
