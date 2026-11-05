@@ -246,21 +246,21 @@ function FP:GetLiveRecipeState()
   return state
 end
 
-function FP:RefreshLeveling()
+function FP:RefreshLeveling(requested)
   if not self.db then return end
   local state = self:GetLiveRecipeState()
   if state and not state.loading and self.SaveRecipeState then
     self:SaveRecipeState(state)
   end
   if not state or state.loading then
-    local suggestion = self.GetLevelingSuggestion and self:GetLevelingSuggestion()
+    local suggestion = self.GetLevelingSuggestion and self:GetLevelingSuggestion(requested)
     local guide = suggestion and self:LevelingLabel(suggestion) .. '\n\n' or ''
     content:SetText(guide .. 'Open a profession window to scan learned recipes and exact reagents.')
     return
   end
 
   local lines = {state.name .. '  |  Skill ' .. tostring(state.skill or '?') .. ' / ' .. tostring(state.maxSkill or '?')}
-  local planned = self.GetLevelingSuggestion and self:GetLevelingSuggestion(state.name)
+  local planned = self.GetLevelingSuggestion and self:GetLevelingSuggestion(requested or state.name)
   if planned then
     lines[#lines + 1] = self:LevelingLabel(planned)
   end
@@ -307,11 +307,12 @@ function FP:RefreshLeveling()
 end
 
 function FP:ShowLeveling(request)
+  local chosen
   if self.db and request and request ~= '' and self.ResolveProfession then
-    local chosen = self:ResolveProfession(request)
+    chosen = self:ResolveProfession(request)
     if chosen then self.db.selectedProfession = chosen end
   end
-  self:RefreshLeveling()
+  self:RefreshLeveling(chosen)
   window:Show()
 end
 
