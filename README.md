@@ -1,4 +1,4 @@
-# ForeverProfessions — v0.3.8
+# ForeverProfessions — v0.3.9
 
 A minimal, account-aware professions and gathering companion for WoW: Forever.
 
@@ -18,7 +18,7 @@ A minimal, account-aware professions and gathering companion for WoW: Forever.
 - Resource-specific nearest-neighbor gathering loop with a modest preference for frequently visited locations; the route recomputes from your current position.
 - Numbered gathering stops and connecting route lines on the matching World Map zone, shared across characters on the same installation; uses a Lua 5.1-compatible angle calculation and ignores map events unsupported by the client.
 - Compact, movable window hidden until requested.
-- Character-specific profession skill snapshots and a provisional pairing advisor. Recommendations combine confirmed Forever profession availability/benefits with labeled Classic supply synergies, not unverified class meta.
+- Character-specific profession skill snapshots (including noncontiguous profession slots) and a provisional pairing advisor. Recommendations combine confirmed Forever profession availability/benefits with labeled Classic supply synergies, not unverified class meta.
 - The character-specific leveling coach uses the **Leveling** button or `/fp level [profession]` to show the next step, estimated craft count, skill bracket, and materials.
 - Rank trainer reminders when the saved profession skill reaches or nears its current rank cap.
 
