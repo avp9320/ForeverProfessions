@@ -115,8 +115,29 @@ local function hideUnused(list, firstUnused)
   for i = firstUnused, #list do list[i]:Hide() end
 end
 
+function FP:SetMapRoute(request)
+  if not self.db then return end
+  self.db.settings = self.db.settings or {}
+  local choice = tostring(request or ""):lower():match("^%s*(.-)%s*$")
+  local enabled
+  if choice == "" or choice == "toggle" then
+    enabled = self.db.settings.showMapRoute == false
+  elseif choice == "on" or choice == "show" then
+    enabled = true
+  elseif choice == "off" or choice == "hide" then
+    enabled = false
+  else
+    self:Say("Usage: /fp map [on|off].")
+    return
+  end
+  self.db.settings.showMapRoute = enabled
+  self:Say("World map gathering route " .. (enabled and "shown." or "hidden.") .. " Use /fp map to toggle it.")
+  self:RefreshRouteMap()
+end
+
 function FP:RefreshRouteMap()
-  if not WorldMapFrame or not WorldMapFrame:IsShown() or not self.db then
+  if not WorldMapFrame or not WorldMapFrame:IsShown() or not self.db
+    or (self.db.settings and self.db.settings.showMapRoute == false) then
     mapFrame:Hide()
     return
   end
