@@ -73,6 +73,7 @@ local function recordGather(candidate, itemName, itemID)
       end
       selectAutoRoute(candidate.kind)
       FP:RefreshUI()
+      if FP.RefreshRouteMap then FP:RefreshRouteMap() end
       return
     end
   end
@@ -87,6 +88,7 @@ local function recordGather(candidate, itemName, itemID)
   end
   if not db.selectedResource then db.selectedResource = candidate.kind end
   FP:RefreshUI()
+  if FP.RefreshRouteMap then FP:RefreshRouteMap() end
 end
 
 selectAutoRoute = function(kind)
